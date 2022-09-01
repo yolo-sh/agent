@@ -4,7 +4,7 @@ This repository contains the source code of the Yolo Agent.
 
 The Yolo Agent is installed in the instance running your environment during its creation (most of the time via `cloud-init` but it may vary depending on the cloud provider used).
 
-The main role of the Yolo Agent is to enable communication between your environment, the [Yolo CLI](https://github.com/yolo-sh/cli) and your code editor.
+The main role of the Yolo Agent is to enable communication between your live environments, the [Yolo CLI](https://github.com/yolo-sh/cli) and your code editor.
 
 It is composed of two components: 
 
