@@ -1,0 +1,32 @@
+syntax = "proto3";
+package agent;
+
+option go_package = "github.com/yolo-sh/agent/proto";
+
+service Agent {
+  rpc InitInstance (InitInstanceRequest) returns (stream InitInstanceReply) {}
+  rpc BuildAndStartEnv (BuildAndStartEnvRequest) returns (stream BuildAndStartEnvReply) {}
+}
+
+message InitInstanceRequest {
+  string env_name_slug = 1;
+  string github_user_email = 2;
+  string user_full_name = 3;
+}
+
+message InitInstanceReply {
+  string log_line_header = 1;
+  string log_line = 2;
+  optional string github_ssh_public_key_content = 3;
+  optional string github_gpg_public_key_content = 4;
+}
+
+message BuildAndStartEnvRequest {
+  string env_repo_owner = 1;
+  string env_repo_name = 2;
+}
+
+message BuildAndStartEnvReply {
+  string log_line_header = 1;
+  string log_line = 2;
+}
