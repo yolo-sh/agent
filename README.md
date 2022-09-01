@@ -54,7 +54,7 @@ The `SSH server` lets you access your environment via `SSH` without having to in
 The `gRPC server`, on the other hand, is used to enable communication with the [Yolo CLI](https://github.com/yolo-sh/cli) (via `SSH`, using the OpenSSH's `Unix domain socket forwarding` feature).
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/1233275/172016265-becc3ab0-dbd0-48d2-8623-2bd1dab9873b.png" alt="infra" />
+  <img src="https://user-images.githubusercontent.com/1233275/187863602-775b14db-f88d-4bfd-9b0b-c543643d020e.png" alt="infra" />
 </p>
 
 ### SSH Server
