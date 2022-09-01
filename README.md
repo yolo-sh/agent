@@ -18,7 +18,7 @@ It is composed of two components:
   - [Generating the gRPC server's code](#generating-the-grpc-servers-code)
 - [Agent](#agent)
   - [SSH Server](#ssh-server)
-  - [GRPC Server](#grpc-server)
+  - [gRPC Server](#grpc-server)
 - [License](#license)
 
 ## Requirements
@@ -63,7 +63,7 @@ The `SSH server` is the sole public-facing component. It will listen on port `22
 
 **The authentication will be done using the Public Key authentication method**. The key pair will be generated once, during the creation of the environment.
 
-### GRPC server
+### gRPC server
 
 The `gRPC server` listens on an Unix socket and, as a result, is not public-facing. It will be accessed by the [Yolo CLI](https://github.com/yolo-sh/cli) via `SSH`, using the OpenSSH's `Unix domain socket forwarding` feature.
 
