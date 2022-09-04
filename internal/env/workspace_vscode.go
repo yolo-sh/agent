@@ -38,29 +38,6 @@ func buildInitialVSCodeWorkspaceConfig() VSCodeWorkspaceConfig {
 	}
 }
 
-func LoadVSCodeWorkspaceConfig(
-	vscodeWorkspaceConfigFilePath string,
-) (*VSCodeWorkspaceConfig, error) {
-
-	vscodeWorkspaceConfigFileContent, err := os.ReadFile(vscodeWorkspaceConfigFilePath)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var vscodeWorkspaceConfig *VSCodeWorkspaceConfig
-	err = json.Unmarshal(
-		vscodeWorkspaceConfigFileContent,
-		&vscodeWorkspaceConfig,
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return vscodeWorkspaceConfig, nil
-}
-
 func saveVSCodeWorkspaceConfigAsFile(
 	vscodeWorkspaceConfigFilePath string,
 	vscodeWorkspaceConfig VSCodeWorkspaceConfig,
