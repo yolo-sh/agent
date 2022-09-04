@@ -13,7 +13,7 @@ type WorkspaceConfigRepository struct {
 	Owner       string `json:"owner"`
 	Name        string `json:"name"`
 	RootDirPath string `json:"root_dir_path"`
-	IsMainRepo  bool   `json:"is_main"`
+	IsMainRepo  bool   `json:"is_main_repo"`
 }
 
 func NewWorkspaceConfig() *WorkspaceConfig {
