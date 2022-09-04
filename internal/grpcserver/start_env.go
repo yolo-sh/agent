@@ -6,7 +6,7 @@ import (
 	"github.com/yolo-sh/agent/proto"
 )
 
-func (s *agentServer) BuildAndStartEnv(
+func (*agentServer) BuildAndStartEnv(
 	req *proto.BuildAndStartEnvRequest,
 	stream proto.Agent_BuildAndStartEnvServer,
 ) error {

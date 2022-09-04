@@ -17,7 +17,7 @@ import (
 //go:embed init_instance.sh
 var initInstanceScript string
 
-func (s *agentServer) InitInstance(
+func (*agentServer) InitInstance(
 	req *proto.InitInstanceRequest,
 	stream proto.Agent_InitInstanceServer,
 ) error {
