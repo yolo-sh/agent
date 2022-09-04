@@ -1,6 +1,7 @@
 package grpcserver
 
 import (
+	"github.com/yolo-sh/agent/constants"
 	"github.com/yolo-sh/agent/internal/docker"
 	"github.com/yolo-sh/agent/internal/env"
 	"github.com/yolo-sh/agent/proto"
@@ -25,7 +26,16 @@ func (*agentServer) BuildAndStartEnv(
 		return err
 	}
 
+	workspaceConfig, err := env.LoadWorkspaceConfig(
+		constants.WorkspaceConfigFilePath,
+	)
+
+	if err != nil {
+		return err
+	}
+
 	err = env.PrepareWorkspace(
+		workspaceConfig,
 		req.EnvRepoOwner,
 		req.EnvRepoName,
 	)

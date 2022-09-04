@@ -11,6 +11,10 @@ const (
 
 	WorkspaceDirPath = "/home/yolo/workspace"
 
+	WorkspaceConfigDirPath        = "/home/recode/.workspace-config"
+	WorkspaceConfigFilePath       = WorkspaceConfigDirPath + "/recode.workspace"
+	VSCodeWorkspaceConfigFilePath = WorkspaceConfigDirPath + "/recode.code-workspace"
+
 	GitHubPublicSSHKeyFilePath = "/home/yolo/.ssh/yolo_github.pub"
 	GitHubPublicGPGKeyFilePath = "/home/yolo/.gnupg/yolo_github_gpg_public.pgp"
 )
