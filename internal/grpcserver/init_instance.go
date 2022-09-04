@@ -11,13 +11,14 @@ import (
 	"path"
 
 	"github.com/yolo-sh/agent/constants"
+	"github.com/yolo-sh/agent/internal/env"
 	"github.com/yolo-sh/agent/proto"
 )
 
 //go:embed init_instance.sh
 var initInstanceScript string
 
-func (s *agentServer) InitInstance(
+func (*agentServer) InitInstance(
 	req *proto.InitInstanceRequest,
 	stream proto.Agent_InitInstanceServer,
 ) error {
@@ -111,10 +112,19 @@ func (s *agentServer) InitInstance(
 		return err
 	}
 
-	return stream.Send(&proto.InitInstanceReply{
+	err = stream.Send(&proto.InitInstanceReply{
 		GithubSshPublicKeyContent: &githubSSHPublicKeyContent,
 		GithubGpgPublicKeyContent: &githubGPGPublicKeyContent,
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return env.SaveWorkspaceConfigAsFile(
+		constants.WorkspaceConfigFilePath,
+		env.NewWorkspaceConfig(),
+	)
 }
 
 func createInitInstanceScriptFile() (string, error) {

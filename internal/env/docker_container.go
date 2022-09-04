@@ -169,6 +169,12 @@ func buildHostMounts() []string {
 			constants.WorkspaceDirPath,
 		),
 
+		fmt.Sprintf(
+			"%s:%s",
+			constants.WorkspaceConfigDirPath,
+			constants.WorkspaceConfigDirPath,
+		),
+
 		/* Config files are mounted to /etc/
 		   to let users overwrite them, if needed,
 		   using config files in home dir. */
