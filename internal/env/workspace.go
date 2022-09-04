@@ -65,7 +65,7 @@ func addRepoToWorkspace(
 
 	err := cloneGitHubRepo(
 		repoOwner,
-		repoOwner,
+		repoName,
 		repoDirPathInWorkspace,
 	)
 
