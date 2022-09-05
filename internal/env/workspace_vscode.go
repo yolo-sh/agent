@@ -31,6 +31,9 @@ func buildInitialVSCodeWorkspaceConfig() VSCodeWorkspaceConfig {
 			// Way better than "output" that parse terminal output.
 			// See: https://github.com/microsoft/vscode/issues/143958#issuecomment-1050959241
 			"remote.autoForwardPortsSource": "process",
+			// Open integrated terminal in workspace's root folder to force the use of the "cd" command.
+			// Why? Because RVM, NVM and Pyenv wait for directory to change to run.
+			"terminal.integrated.cwd": "../",
 		},
 		Extensions: VSCodeWorkspaceConfigExtensions{
 			Recommendations: []string{},
