@@ -34,6 +34,12 @@ func buildInitialVSCodeWorkspaceConfig() VSCodeWorkspaceConfig {
 			// Open integrated terminal in workspace's root folder to force the use of the "cd" command.
 			// Why? Because RVM, NVM and Pyenv wait for directory to change to run.
 			"terminal.integrated.cwd": "../",
+			// We overwrite the $PATH environment variable in integrated terminal
+			// because RVM displays warnings when VSCode changes the order of the paths.
+			// See: https://github.com/microsoft/vscode/issues/70248
+			"terminal.integrated.env.linux": map[string]interface{}{
+				"PATH": "${env:PATH}",
+			},
 		},
 		Extensions: VSCodeWorkspaceConfigExtensions{
 			Recommendations: []string{},
