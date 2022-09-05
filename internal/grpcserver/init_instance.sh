@@ -101,6 +101,12 @@ sudo apt-get --assume-yes --quiet --quiet update
 sudo apt-get --assume-yes --quiet --quiet remove docker docker-engine docker.io containerd runc
 sudo apt-get --assume-yes --quiet --quiet install docker-ce docker-ce-cli containerd.io
 
+# Sysbox
+log "Installing Sysbox"
+
+wget https://downloads.nestybox.com/sysbox/releases/v0.5.2/sysbox-ce_0.5.2-0.linux_amd64.deb -O /tmp/sysbox.deb
+sudo apt-get --assume-yes --quiet --quiet install /tmp/sysbox.deb
+
 # log "Configuring Docker"
 
 # sudo mkdir /etc/systemd/system/docker.service.d

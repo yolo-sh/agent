@@ -89,6 +89,7 @@ func EnsureDockerContainerRunning(
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
+			Runtime: "sysbox-runc",
 		},
 
 		nil,
@@ -228,6 +229,6 @@ func buildHostMounts() []string {
 
 		// Docker daemon socket
 
-		"/var/run/docker.sock:/var/run/docker.sock",
+		// "/var/run/docker.sock:/var/run/docker.sock",
 	}
 }
