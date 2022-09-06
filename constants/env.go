@@ -5,7 +5,7 @@ const (
 	YoloUserAuthorizedSSHKeysFilePath = "/home/yolo/.ssh/authorized_keys"
 
 	DockerGroupName                   = "docker"
-	DockerImageName                   = "yolosh/base-env:latest"
+	DockerImageName                   = "yolosh/base-env:0.0.2-dev"
 	DockerContainerName               = "yolo-env-container"
 	DockerContainerEntrypointFilePath = "/yolo_entrypoint.sh"
 
