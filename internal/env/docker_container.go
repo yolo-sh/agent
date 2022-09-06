@@ -85,7 +85,7 @@ func EnsureDockerContainerRunning(
 			AutoRemove:  false,
 			Binds:       buildHostMounts(),
 			//NetworkMode: container.NetworkMode("host"),
-			Privileged:  true,
+			//Privileged:  true,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
