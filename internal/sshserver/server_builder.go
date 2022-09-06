@@ -85,7 +85,7 @@ func (s ServerBuilder) Build() (*ssh.Server, error) {
 		},
 
 		ChannelHandlers: map[string]ssh.ChannelHandler{
-			"direct-tcpip":                   ssh.DirectTCPIPHandler,
+			"direct-tcpip":                   handleDirectTCPIP,
 			"session":                        ssh.DefaultSessionHandler,
 			"direct-streamlocal@openssh.com": handleDirectStreamLocalOpenSSH,
 		},

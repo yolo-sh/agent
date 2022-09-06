@@ -50,6 +50,24 @@ func LookupContainer(
 	return &containers[0], nil
 }
 
+func LookupContainerIP(
+	dockerClient *client.Client,
+	containerName string,
+) (*string, error) {
+
+	container, err := LookupContainer(dockerClient, containerName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if container == nil {
+		return nil, nil
+	}
+
+	return &container.NetworkSettings.Networks["bridge"].IPAddress, nil
+}
+
 func IsContainerRunning(
 	dockerClient *client.Client,
 	containerName string,
