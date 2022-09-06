@@ -25,3 +25,8 @@ var (
 		"infinity",
 	}
 )
+
+var DockerContainerEntrypoint = []string{
+	"/sbin/init",
+	"--log-level=err",
+}

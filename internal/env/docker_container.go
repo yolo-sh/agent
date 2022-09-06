@@ -6,7 +6,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 	"github.com/yolo-sh/agent/constants"
@@ -75,11 +74,9 @@ func EnsureDockerContainerRunning(
 		&container.Config{
 			WorkingDir: constants.WorkspaceDirPath,
 			Image:      constants.DockerImageName,
-			User:       constants.YoloUserName,
-			Entrypoint: strslice.StrSlice{
-				constants.DockerContainerEntrypointFilePath,
-			},
-			Cmd: constants.DockerContainerStartCmd,
+			//User:       constants.YoloUserName,
+			Entrypoint: constants.DockerContainerEntrypoint,
+			//Cmd: constants.DockerContainerStartCmd,
 			ExposedPorts: nat.PortSet{
 				nat.Port("22/tcp"): {},
 			},
