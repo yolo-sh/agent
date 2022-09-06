@@ -8,6 +8,7 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"github.com/yolo-sh/agent/constants"
 	"github.com/yolo-sh/agent/internal/docker"
 	"github.com/yolo-sh/agent/proto"
@@ -79,17 +80,23 @@ func EnsureDockerContainerRunning(
 				constants.DockerContainerEntrypointFilePath,
 			},
 			Cmd: constants.DockerContainerStartCmd,
+			ExposedPorts: nat.PortSet{
+				nat.Port("22/tcp"): {},
+			},
 		},
 
 		&container.HostConfig{
-			AutoRemove:  false,
-			Binds:       buildHostMounts(),
+			AutoRemove: false,
+			Binds:      buildHostMounts(),
 			//NetworkMode: container.NetworkMode("host"),
 			//Privileged:  true,
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
 			Runtime: "sysbox-runc",
+			PortBindings: nat.PortMap{
+				nat.Port("22/tcp"): []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: "2201"}},
+			},
 		},
 
 		nil,
@@ -209,6 +216,12 @@ func buildHostMounts() []string {
 
 		fmt.Sprintf(
 			"/home/%s/.ssh/yolo_github.pub:/home/%s/.ssh/yolo_github.pub",
+			constants.YoloUserName,
+			constants.YoloUserName,
+		),
+
+		fmt.Sprintf(
+			"/home/%s/.ssh/authorized_keys:/home/%s/.ssh/authorized_keys",
 			constants.YoloUserName,
 			constants.YoloUserName,
 		),
