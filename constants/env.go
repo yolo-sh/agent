@@ -21,7 +21,7 @@ const (
 
 var (
 	DockerContainerStartCmd = []string{
-		"/sbin/init",
-		"--log-level=err",
+		"sleep",
+		"infinity",
 	}
 )
