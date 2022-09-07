@@ -11,6 +11,7 @@ import (
 	"github.com/gliderlabs/ssh"
 	"github.com/yolo-sh/agent/constants"
 	"github.com/yolo-sh/agent/internal/docker"
+	"github.com/yolo-sh/agent/internal/env"
 )
 
 func (s SessionManager) ManageShellInEnv(sshSession ssh.Session) error {
@@ -21,6 +22,14 @@ func (s SessionManager) ManageShellInEnv(sshSession ssh.Session) error {
 	}
 
 	dockerClient, err := docker.NewDefaultClient()
+
+	if err != nil {
+		return err
+	}
+
+	workspaceConfig, err := env.LoadWorkspaceConfig(
+		constants.WorkspaceConfigFilePath,
+	)
 
 	if err != nil {
 		return err
@@ -37,7 +46,7 @@ func (s SessionManager) ManageShellInEnv(sshSession ssh.Session) error {
 			Tty:          false,
 			Cmd:          []string{"/bin/bash"},
 			Env:          []string{},
-			WorkingDir:   constants.WorkspaceDirPath,
+			WorkingDir:   workspaceConfig.Repositories[0].RootDirPath,
 			User:         constants.YoloUserName,
 			Privileged:   true,
 		},
@@ -97,6 +106,14 @@ func (s SessionManager) ManageShellPTYInEnv(sshSession ssh.Session) error {
 		return err
 	}
 
+	workspaceConfig, err := env.LoadWorkspaceConfig(
+		constants.WorkspaceConfigFilePath,
+	)
+
+	if err != nil {
+		return err
+	}
+
 	exec, err := dockerClient.ContainerExecCreate(
 		context.TODO(),
 		constants.DockerContainerName,
@@ -118,7 +135,7 @@ func (s SessionManager) ManageShellPTYInEnv(sshSession ssh.Session) error {
 			Env: []string{
 				fmt.Sprintf("TERM=%s", ptyReq.Term),
 			},
-			WorkingDir: constants.WorkspaceDirPath,
+			WorkingDir: workspaceConfig.Repositories[0].RootDirPath,
 			User:       constants.YoloUserName,
 			Privileged: true,
 		},
@@ -205,6 +222,14 @@ func (s SessionManager) ManageExecInEnv(sshSession ssh.Session) error {
 		return err
 	}
 
+	workspaceConfig, err := env.LoadWorkspaceConfig(
+		constants.WorkspaceConfigFilePath,
+	)
+
+	if err != nil {
+		return err
+	}
+
 	exec, err := dockerClient.ContainerExecCreate(
 		context.TODO(),
 		constants.DockerContainerName,
@@ -216,7 +241,7 @@ func (s SessionManager) ManageExecInEnv(sshSession ssh.Session) error {
 			Tty:          false,
 			Cmd:          passedCmd,
 			Env:          []string{},
-			WorkingDir:   constants.WorkspaceDirPath,
+			WorkingDir:   workspaceConfig.Repositories[0].RootDirPath,
 			User:         constants.YoloUserName,
 			Privileged:   true,
 		},
