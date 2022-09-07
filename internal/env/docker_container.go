@@ -50,7 +50,7 @@ func EnsureDockerContainerRunning(
 
 	err = stream.Send(&proto.BuildAndStartEnvReply{
 		LogLineHeader: fmt.Sprintf(
-			"Pulling Docker image %s",
+			"Pulling docker image (%s)",
 			constants.DockerImageName,
 		),
 	})
