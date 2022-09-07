@@ -128,7 +128,7 @@ func (s SessionManager) ManageShellPTYInEnv(sshSession ssh.Session) error {
 				"-c",
 				fmt.Sprintf(
 					// Display Ubuntu motd and run default shell for user
-					"for i in /etc/update-motd.d/*; do $i; done && $(getent passwd %s | cut -d ':' -f 7)",
+					"for i in /etc/update-motd.d/*; do $i; done && echo '' && $(getent passwd %s | cut -d ':' -f 7)",
 					constants.YoloUserName,
 				),
 			},
