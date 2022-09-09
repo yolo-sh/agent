@@ -181,6 +181,8 @@ fi
 
 chmod 600 .gnupg/yolo_github_gpg_private.pgp
 
+git config --global pull.rebase false
+
 git config --global user.name "${USER_FULL_NAME}"
 git config --global user.email "${GITHUB_USER_EMAIL}"
 
