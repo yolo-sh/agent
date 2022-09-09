@@ -5,8 +5,8 @@ const (
 	YoloUserHomeDirPath               = "/home/" + YoloUserName
 	YoloUserAuthorizedSSHKeysFilePath = YoloUserHomeDirPath + "/.ssh/authorized_keys"
 
-	DockerImageTag                    = "0.0.1"
-	DockerImageName                   = "ghcr.io/yolo-sh/workspace-full:" + DockerImageTag
+	DockerImageTag  = "0.0.1"
+	DockerImageName = "ghcr.io/yolo-sh/workspace-full:" + DockerImageTag
 
 	DockerContainerName               = "yolo-env-container"
 	DockerContainerEntrypointFilePath = "/entrypoint.sh"
