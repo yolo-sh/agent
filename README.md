@@ -101,7 +101,7 @@ message BuildAndStartEnvReply {
 
 The `InitInstance` method will run a [shell script](https://github.com/yolo-sh/agent/blob/main/internal/grpcserver/init_instance.sh) that will, among other things, install `Docker` and generate the `SSH` and `GPG` keys used in GitHub.
 
-The `BuildAndStartEnv` method will clone your repositories and pull the `yolosh/base-env` image.
+The `BuildAndStartEnv` method will clone your repositories and pull the `ghcr.io/yolo-sh/workspace-full` image.
 
 **The two methods are idempotent**.
 
