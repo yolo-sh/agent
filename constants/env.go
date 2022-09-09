@@ -2,21 +2,23 @@ package constants
 
 const (
 	YoloUserName                      = "yolo"
-	YoloUserAuthorizedSSHKeysFilePath = "/home/yolo/.ssh/authorized_keys"
+	YoloUserHomeDirPath               = "/home/" + YoloUserName
+	YoloUserAuthorizedSSHKeysFilePath = YoloUserHomeDirPath + "/.ssh/authorized_keys"
 
-	DockerGroupName                   = "docker"
-	DockerImageName                   = "yolosh/base-env:latest"
+	DockerImageTag  = "0.0.1"
+	DockerImageName = "ghcr.io/yolo-sh/workspace-full:" + DockerImageTag
+
 	DockerContainerName               = "yolo-env-container"
-	DockerContainerEntrypointFilePath = "/yolo_entrypoint.sh"
+	DockerContainerEntrypointFilePath = "/entrypoint.sh"
 
-	WorkspaceDirPath = "/home/yolo/workspace"
+	WorkspaceDirPath = YoloUserHomeDirPath + "/workspace"
 
-	WorkspaceConfigDirPath        = "/home/yolo/.workspace-config"
-	WorkspaceConfigFilePath       = WorkspaceConfigDirPath + "/yolo.workspace"
-	VSCodeWorkspaceConfigFilePath = WorkspaceConfigDirPath + "/yolo.code-workspace"
+	WorkspaceConfigDirPath        = YoloUserHomeDirPath + "/.workspace-config"
+	WorkspaceConfigFilePath       = WorkspaceConfigDirPath + "/default.workspace"
+	VSCodeWorkspaceConfigFilePath = WorkspaceConfigDirPath + "/default.code-workspace"
 
-	GitHubPublicSSHKeyFilePath = "/home/yolo/.ssh/yolo_github.pub"
-	GitHubPublicGPGKeyFilePath = "/home/yolo/.gnupg/yolo_github_gpg_public.pgp"
+	GitHubPublicSSHKeyFilePath = YoloUserHomeDirPath + "/.ssh/" + YoloUserName + "_github.pub"
+	GitHubPublicGPGKeyFilePath = YoloUserHomeDirPath + "/.gnupg/" + YoloUserName + "_github_gpg_public.pgp"
 )
 
 var (
