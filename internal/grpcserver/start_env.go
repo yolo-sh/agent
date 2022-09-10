@@ -38,6 +38,7 @@ func (*agentServer) BuildAndStartEnv(
 		workspaceConfig,
 		req.EnvRepoOwner,
 		req.EnvRepoName,
+		req.EnvRepoLanguagesUsed,
 	)
 
 	if err != nil {

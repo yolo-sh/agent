@@ -11,8 +11,9 @@ func PrepareWorkspace(
 	workspaceConfig *WorkspaceConfig,
 	repoOwner string,
 	repoName string,
+	languagesUsedInRepo []string,
 ) error {
-	vscodeWorkspaceConfig := buildInitialVSCodeWorkspaceConfig()
+	vscodeWorkspaceConfig := buildInitialVSCodeWorkspaceConfig(languagesUsedInRepo)
 
 	// The method "PrepareWorkspace" could
 	// be called multiple times in case of error

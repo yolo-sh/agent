@@ -5,6 +5,18 @@ import (
 	"os"
 )
 
+var LanguagesVSCodeExtensions = map[string][]string{
+	"Go":         []string{"golang.go"},
+	"Ruby":       []string{"rebornix.Ruby"},
+	"Rust":       []string{"rust-lang.rust-analyzer"},
+	"Python":     []string{"ms-python.python"},
+	"Java":       []string{"vscjava.vscode-java-pack"},
+	"C":          []string{"ms-vscode.cpptools-extension-pack"},
+	"C++":        []string{"ms-vscode.cpptools-extension-pack"},
+	"CMake":      []string{"ms-vscode.cpptools-extension-pack"},
+	"Dockerfile": []string{"ms-azuretools.vscode-docker"},
+}
+
 // VSCodeWorkspaceConfig matches .code-workspace schema.
 // See: https://code.visualstudio.com/docs/editor/multi-root-workspaces#_workspace-file-schema
 type VSCodeWorkspaceConfig struct {
@@ -21,7 +33,10 @@ type VSCodeWorkspaceConfigExtensions struct {
 	Recommendations []string `json:"recommendations"`
 }
 
-func buildInitialVSCodeWorkspaceConfig() VSCodeWorkspaceConfig {
+func buildInitialVSCodeWorkspaceConfig(
+	languagesUsed []string,
+) VSCodeWorkspaceConfig {
+
 	return VSCodeWorkspaceConfig{
 		Folders: []VSCodeWorkspaceConfigFolder{},
 		Settings: map[string]interface{}{
@@ -39,7 +54,7 @@ func buildInitialVSCodeWorkspaceConfig() VSCodeWorkspaceConfig {
 			},
 		},
 		Extensions: VSCodeWorkspaceConfigExtensions{
-			Recommendations: []string{},
+			Recommendations: convertLanguagesToVSCodeExtensions(languagesUsed),
 		},
 	}
 }
@@ -60,4 +75,49 @@ func saveVSCodeWorkspaceConfigAsFile(
 		vscodeWorkspaceConfigAsJSON,
 		os.FileMode(0644),
 	)
+}
+
+func convertLanguagesToVSCodeExtensions(
+	languages []string,
+) []string {
+
+	vscodeExts := []string{}
+
+	for _, language := range languages {
+		if languageExtensions, ok := LanguagesVSCodeExtensions[language]; ok {
+			vscodeExts = mergeVSCodeExtensionsRecos(
+				vscodeExts,
+				languageExtensions,
+			)
+		}
+	}
+
+	return vscodeExts
+}
+
+func mergeVSCodeExtensionsRecos(
+	currentRecos []string,
+	recosToAdd []string,
+) []string {
+
+	mergedRecos := []string{}
+	hasRecoMap := map[string]bool{}
+
+	for _, currentReco := range currentRecos {
+		mergedRecos = append(mergedRecos, currentReco)
+		hasRecoMap[currentReco] = true
+	}
+
+	for _, recoToAdd := range recosToAdd {
+		_, alreadyHasReco := hasRecoMap[recoToAdd]
+
+		if alreadyHasReco {
+			continue
+		}
+
+		mergedRecos = append(mergedRecos, recoToAdd)
+		hasRecoMap[recoToAdd] = true
+	}
+
+	return mergedRecos
 }
