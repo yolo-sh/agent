@@ -16,12 +16,6 @@ type WorkspaceConfigRepository struct {
 	IsMainRepo  bool   `json:"is_main_repo"`
 }
 
-func NewWorkspaceConfig() *WorkspaceConfig {
-	return &WorkspaceConfig{
-		Repositories: []WorkspaceConfigRepository{},
-	}
-}
-
 func LoadWorkspaceConfig(
 	workspaceConfigFilePath string,
 ) (*WorkspaceConfig, error) {
@@ -40,22 +34,4 @@ func LoadWorkspaceConfig(
 	}
 
 	return workspaceConfig, nil
-}
-
-func SaveWorkspaceConfigAsFile(
-	workspaceConfigFilePath string,
-	workspaceConfig *WorkspaceConfig,
-) error {
-
-	workspaceConfigAsJSON, err := json.Marshal(workspaceConfig)
-
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(
-		workspaceConfigFilePath,
-		workspaceConfigAsJSON,
-		os.FileMode(0644),
-	)
 }

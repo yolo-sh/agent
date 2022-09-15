@@ -1,33 +1,44 @@
 syntax = "proto3";
-package agent;
+package yolo.agent;
 
 option go_package = "github.com/yolo-sh/agent/proto";
 
 service Agent {
   rpc InitInstance (InitInstanceRequest) returns (stream InitInstanceReply) {}
   rpc BuildAndStartEnv (BuildAndStartEnvRequest) returns (stream BuildAndStartEnvReply) {}
+  rpc InitEnv (InitEnvRequest) returns (stream InitEnvReply) {}
 }
 
-message InitInstanceRequest {
-  string env_name_slug = 1;
-  string github_user_email = 2;
-  string user_full_name = 3;
-}
+message InitInstanceRequest {}
 
 message InitInstanceReply {
   string log_line_header = 1;
   string log_line = 2;
-  optional string github_ssh_public_key_content = 3;
-  optional string github_gpg_public_key_content = 4;
 }
 
 message BuildAndStartEnvRequest {
-  string env_repo_owner = 1;
-  string env_repo_name = 2;
-  repeated string env_repo_languages_used = 3;
+  string env_name_slug = 1;
+  string env_repo_owner = 2;
+  string env_repo_name = 3;
+  repeated string env_repo_languages_used = 4;
 }
 
 message BuildAndStartEnvReply {
   string log_line_header = 1;
   string log_line = 2;
+}
+
+message InitEnvRequest {
+  string env_repo_owner = 1;
+  string env_repo_name = 2;
+  repeated string env_repo_languages_used = 3;
+  string github_user_email = 4;
+  string user_full_name = 5;
+}
+
+message InitEnvReply {
+  string log_line_header = 1;
+  string log_line = 2;
+  optional string github_ssh_public_key_content = 3;
+  optional string github_gpg_public_key_content = 4;
 }

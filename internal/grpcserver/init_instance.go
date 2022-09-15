@@ -11,7 +11,6 @@ import (
 	"path"
 
 	"github.com/yolo-sh/agent/constants"
-	"github.com/yolo-sh/agent/internal/env"
 	"github.com/yolo-sh/agent/proto"
 )
 
@@ -92,39 +91,7 @@ func (*agentServer) InitInstance(
 	// It is incorrect to call Wait
 	// before all reads from the pipes have completed.
 	// See StderrPipe() / StdoutPipe() documentation.
-	if err := initInstanceCmd.Wait(); err != nil {
-		return err
-	}
-
-	githubSSHPublicKeyContent, err := readGitHubSSHPublicKey(
-		constants.GitHubPublicSSHKeyFilePath,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	githubGPGPublicKeyContent, err := readGitHubGPGPublicKey(
-		constants.GitHubPublicGPGKeyFilePath,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	err = stream.Send(&proto.InitInstanceReply{
-		GithubSshPublicKeyContent: &githubSSHPublicKeyContent,
-		GithubGpgPublicKeyContent: &githubGPGPublicKeyContent,
-	})
-
-	if err != nil {
-		return err
-	}
-
-	return env.SaveWorkspaceConfigAsFile(
-		constants.WorkspaceConfigFilePath,
-		env.NewWorkspaceConfig(),
-	)
+	return initInstanceCmd.Wait()
 }
 
 func createInitInstanceScriptFile() (string, error) {
@@ -187,11 +154,7 @@ func buildInitInstanceCmd(
 }
 
 func buildInitInstanceCmdEnvVars(req *proto.InitInstanceRequest) []string {
-	return []string{
-		fmt.Sprintf("ENV_NAME_SLUG=%s", req.EnvNameSlug),
-		fmt.Sprintf("GITHUB_USER_EMAIL=%s", req.GithubUserEmail),
-		fmt.Sprintf("USER_FULL_NAME=%s", req.UserFullName),
-	}
+	return []string{}
 }
 
 func buildInitInstanceCmdStderrReader(initInstanceCmd *exec.Cmd) (*bufio.Reader, error) {
@@ -240,24 +203,4 @@ func handleInitInstanceCmdOutput(
 	}
 
 	return nil
-}
-
-func readGitHubSSHPublicKey(sshPublicKeyFilePath string) (string, error) {
-	sshPublicKeyContent, err := os.ReadFile(sshPublicKeyFilePath)
-
-	if err != nil {
-		return "", err
-	}
-
-	return string(sshPublicKeyContent), nil
-}
-
-func readGitHubGPGPublicKey(gpgPublicKeyFilePath string) (string, error) {
-	gpgPublicKeyContent, err := os.ReadFile(gpgPublicKeyFilePath)
-
-	if err != nil {
-		return "", err
-	}
-
-	return string(gpgPublicKeyContent), nil
 }

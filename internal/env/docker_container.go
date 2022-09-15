@@ -3,12 +3,15 @@ package env
 import (
 	"context"
 	"fmt"
+	"net"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
-	"github.com/yolo-sh/agent/constants"
+	"github.com/yolo-sh/agent-container/constants"
 	"github.com/yolo-sh/agent/internal/docker"
 	"github.com/yolo-sh/agent/proto"
 )
@@ -16,6 +19,7 @@ import (
 func EnsureDockerContainerRunning(
 	dockerClient *client.Client,
 	stream proto.Agent_BuildAndStartEnvServer,
+	containerHostname string,
 ) error {
 
 	isContainerRunning, err := docker.IsContainerRunning(
@@ -74,24 +78,28 @@ func EnsureDockerContainerRunning(
 		&container.Config{
 			WorkingDir: constants.WorkspaceDirPath,
 			Image:      constants.DockerImageName,
-			User:       constants.YoloUserName,
-			Entrypoint: strslice.StrSlice{
-				constants.DockerContainerEntrypointFilePath,
-			},
-			Cmd: constants.DockerContainerStartCmd,
+			Entrypoint: constants.DockerContainerEntrypoint,
+			Cmd:        strslice.StrSlice{},
+			Hostname:   containerHostname,
+			User:       "root",
 		},
 
 		&container.HostConfig{
-			AutoRemove:  false,
-			Binds:       buildHostMounts(),
-			NetworkMode: container.NetworkMode("host"),
-			Privileged:  true,
+			AutoRemove: false,
+			Binds:      buildHostMounts(),
 			RestartPolicy: container.RestartPolicy{
 				Name: "always",
 			},
+			Runtime: "sysbox-runc",
 		},
 
-		nil,
+		&network.NetworkingConfig{
+			EndpointsConfig: map[string]*network.EndpointSettings{
+				"bridge": {
+					IPAddress: constants.DockerContainerIPAddress,
+				},
+			},
+		},
 
 		nil,
 
@@ -132,6 +140,39 @@ func EnsureDockerContainerRemoved(dockerClient *client.Client) error {
 	)
 }
 
+func WaitForAgentContainer() (
+	returnedError error,
+) {
+	pollTimeoutChan := time.After(1 * time.Minute)
+	pollSleepDuration := time.Second * 4
+	connTimeout := time.Second * 4
+
+	for {
+		select {
+		case <-pollTimeoutChan:
+			return
+		default:
+			conn, err := net.DialTimeout(
+				constants.GRPCServerAddrProtocol,
+				constants.GRPCServerAddr,
+				connTimeout,
+			)
+
+			// Make sure timeout returns last error
+			returnedError = err
+
+			if err != nil {
+				break // wait pollSleepDuration and retry until timeout
+			}
+
+			conn.Close()
+			return
+		}
+
+		time.Sleep(pollSleepDuration)
+	}
+}
+
 func pullBaseEnvImage(
 	dockerClient *client.Client,
 	stream proto.Agent_BuildAndStartEnvServer,
@@ -161,73 +202,11 @@ func pullBaseEnvImage(
 
 func buildHostMounts() []string {
 	return []string{
-		// Working dir
-
+		// Yolo configuration
 		fmt.Sprintf(
 			"%s:%s",
-			constants.WorkspaceDirPath,
-			constants.WorkspaceDirPath,
+			constants.YoloConfigDirPath,
+			constants.YoloConfigDirPath,
 		),
-
-		fmt.Sprintf(
-			"%s:%s",
-			constants.WorkspaceConfigDirPath,
-			constants.WorkspaceConfigDirPath,
-		),
-
-		/* Config files are mounted to /etc/
-		   to let users overwrite them, if needed,
-		   using config files in home dir. */
-
-		// Git config
-
-		fmt.Sprintf(
-			"/home/%s/.gitconfig:/etc/gitconfig",
-			constants.YoloUserName,
-		),
-
-		// SSH config
-
-		fmt.Sprintf(
-			"/home/%s/.ssh/config:/etc/ssh/ssh_config",
-			constants.YoloUserName,
-		),
-
-		fmt.Sprintf(
-			"/home/%s/.ssh/known_hosts:/etc/ssh/ssh_known_hosts",
-			constants.YoloUserName,
-		),
-
-		// SSH GitHub keys
-
-		fmt.Sprintf(
-			"/home/%s/.ssh/yolo_github:/home/%s/.ssh/yolo_github",
-			constants.YoloUserName,
-			constants.YoloUserName,
-		),
-
-		fmt.Sprintf(
-			"/home/%s/.ssh/yolo_github.pub:/home/%s/.ssh/yolo_github.pub",
-			constants.YoloUserName,
-			constants.YoloUserName,
-		),
-
-		// GnuPG GitHub keys
-
-		fmt.Sprintf(
-			"/home/%s/.gnupg/yolo_github_gpg_public.pgp:/home/%s/.gnupg/yolo_github_gpg_public.pgp",
-			constants.YoloUserName,
-			constants.YoloUserName,
-		),
-
-		fmt.Sprintf(
-			"/home/%s/.gnupg/yolo_github_gpg_private.pgp:/home/%s/.gnupg/yolo_github_gpg_private.pgp",
-			constants.YoloUserName,
-			constants.YoloUserName,
-		),
-
-		// Docker daemon socket
-
-		"/var/run/docker.sock:/var/run/docker.sock",
 	}
 }
