@@ -17,7 +17,7 @@ builds:
       - amd64
       - arm
       - arm64
-    binary: yolo_agent
+    binary: yolo-agent
 archives:
   -
     # Additional files/template/globs you want to add to the archive.

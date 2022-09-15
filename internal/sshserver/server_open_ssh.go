@@ -9,10 +9,11 @@ import (
 	gossh "golang.org/x/crypto/ssh"
 )
 
-// directStreamLocalOpenSSHMsg is a struct used for SSH_MSG_CHANNEL_OPEN message
-// with "direct-streamlocal@openssh.com" string.
+// directStreamLocalOpenSSHMsg represents the message
+// sent during the opening of "direct-streamlocal@openssh.com" channels.
 //
-// See openssh-portable/PROTOCOL, section 2.4. connection: Unix domain socket forwarding
+// See openssh-portable/PROTOCOL, section 2.4.
+// connection: Unix domain socket forwarding
 // https://github.com/openssh/openssh-portable/blob/master/PROTOCOL#L235
 type directStreamLocalOpenSSHMsg struct {
 	SocketPath string
@@ -20,7 +21,8 @@ type directStreamLocalOpenSSHMsg struct {
 	Reserved1  uint32
 }
 
-// handleDirectStreamLocalOpenSSH is used to forward local conn to a remote unix socket.
+// handleDirectStreamLocalOpenSSH is used to
+// forward local conn to a remote unix socket.
 // Corresponds to the "direct-streamlocal@openssh.com" channel type.
 // Used by the Yolo CLI to reach the GRPC server unix socket.
 func handleDirectStreamLocalOpenSSH(

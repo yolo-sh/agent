@@ -1,4 +1,4 @@
-# Agent
+# Agent / Host
 
 This repository contains the source code of the Yolo Agent. 
 
@@ -37,7 +37,7 @@ The Yolo Agent only works on nix-based OS and requires:
 
 The Yolo agent could be run using the `go run main.go` command. 
 
-The `gRPC server` will listen on an Unix socket at `/tmp/yolo_grpc.sock` whereas the `SSH server` will listen on `:2200` by default.
+The `gRPC server` will listen on an Unix socket at `/tmp/yolo-grpc.sock` whereas the `SSH server` will listen on `:2200` by default.
 
 ### Generating the gRPC server's code
 

@@ -16,75 +16,26 @@ handleExit () {
 
 trap "handleExit" EXIT
 
-# -- Set hostname
+# -- System configuration
 
-sudo hostnamectl set-hostname "${ENV_NAME_SLUG}"
+# Lookup instance architecture for Sysbox
+INSTANCE_ARCH=""
+case $(uname -m) in
+  i386)       INSTANCE_ARCH="386" ;;
+  i686)       INSTANCE_ARCH="386" ;;
+  x86_64)     INSTANCE_ARCH="amd64" ;;
+  arm)        dpkg --print-architecture | grep -q "arm64" && INSTANCE_ARCH="arm64" || INSTANCE_ARCH="armv6" ;;
+  aarch64_be) INSTANCE_ARCH="arm64" ;;
+  aarch64)    INSTANCE_ARCH="arm64" ;;
+  armv8b)     INSTANCE_ARCH="arm64" ;;
+  armv8l)     INSTANCE_ARCH="arm64" ;;
+esac
 
-# -- System dependencies
+# -- Packages dependencies
 
-# log "Installing system and Docker dependencies"
+log "Installing Docker / Sysbox dependencies"
 
-sudo apt-get --assume-yes --quiet --quiet install wget git vim apt-transport-https ca-certificates gnupg lsb-release
-
-# -- Yolo volume configuration
-
-# log "Locating Yolo volume"
-
-# YOLO_VOL_MOUNTPOINT="/yolo"
-# YOLO_VOL_LABEL="yolo-volume"
-# DOCKER_DATA_DIR="${YOLO_VOL_MOUNTPOINT}/docker"
-
-# # Find the volume not mounted (mountpoint == null) 
-# # and with no partition (children == null)
-# YOLO_VOL=$(lsblk --json | jq '.blockdevices[] | select(.mountpoint == null and .children == null) | .name' --raw-output)
-
-# if [[ "${YOLO_VOL}" = "" ]]; then
-#   echo "Yolo volume not found"
-#   exit 1
-# elif [[ "${YOLO_VOL}" = *" "* ]]; then # eg: sda1 sda2
-#   echo "Multiple volumes match the Yolo one"
-#   exit 1
-# fi
-
-# YOLO_VOL="/dev/${YOLO_VOL}"
-
-# log "Yolo volume found ${YOLO_VOL}"
-
-# # If the output shows simply data, there is no file system on the device
-# # Example:
-# # [ec2-user ~]$ file --special-files /dev/xvdf
-# # /dev/xvdf: data
-# YOLO_VOL_IS_FORMATTED=$([[ $(sudo file --special-files "${YOLO_VOL}") = "${YOLO_VOL}: data" ]] && echo "false" || echo "true")
-
-# if [[ "${YOLO_VOL_IS_FORMATTED}" = "false" ]]; then
-#   log "Yolo volume not formatted. Formatting now..."
-#   sudo mkfs.ext4 "${YOLO_VOL}"
-# fi
-
-# log "Backuping /etc/fstab to /etc/fstab.orig"
-# sudo cp /etc/fstab /etc/fstab.orig
-
-# log "Labeling Yolo volume to ${YOLO_VOL_LABEL}"
-# sudo e2label "${YOLO_VOL}" "${YOLO_VOL_LABEL}"
-
-# log "Creating ${YOLO_VOL_MOUNTPOINT} mountpoint"
-# sudo mkdir --parents "${YOLO_VOL_MOUNTPOINT}"
-
-# log "Adding Yolo volume to fstab"
-# echo "LABEL=${YOLO_VOL_LABEL}  ${YOLO_VOL_MOUNTPOINT}  ext4  defaults,nofail  0  2" | sudo tee --append /etc/fstab > /dev/null
-
-# log "Mounting all devices"
-# sudo mount --all
-
-# if [[ "${YOLO_VOL_IS_FORMATTED}" = "true" ]]; then
-#   log "Yolo volume already formatted before mounting. Making sure the filesystem size match the attached volume..."
-#   sudo resize2fs "${YOLO_VOL}"
-# fi
-
-# sudo mkdir --parents "${DOCKER_DATA_DIR}"
-# sudo chown --recursive yolo:yolo "${YOLO_VOL_MOUNTPOINT}"
-
-# -- Packages configuration
+sudo apt-get --assume-yes --quiet --quiet install ca-certificates curl gnupg jq lsb-release wget
 
 # Docker
 log "Installing Docker"
@@ -101,92 +52,12 @@ sudo apt-get --assume-yes --quiet --quiet update
 sudo apt-get --assume-yes --quiet --quiet remove docker docker-engine docker.io containerd runc
 sudo apt-get --assume-yes --quiet --quiet install docker-ce docker-ce-cli containerd.io
 
-# log "Configuring Docker"
+# Sysbox
+log "Installing Sysbox"
 
-# sudo mkdir /etc/systemd/system/docker.service.d
-# sudo touch /etc/systemd/system/docker.service.d/override.conf
-
-# sudo tee /etc/systemd/system/docker.service.d/override.conf > /dev/null << EOF
-# [Service]
-# ExecStart=
-# ExecStart=/usr/bin/dockerd --host fd:// --containerd=/run/containerd/containerd.sock --data-root="${DOCKER_DATA_DIR}"
-# EOF
-
-# sudo systemctl daemon-reload
-# sudo systemctl restart docker.service
-
-# -- Run as "yolo"
-
-log "Configuring workspace for user \"yolo\""
-
-sudo --set-home --login --user yolo -- env \
-	GITHUB_USER_EMAIL="${GITHUB_USER_EMAIL}" \
-	USER_FULL_NAME="${USER_FULL_NAME}" \
-bash << 'EOF'
-
-mkdir --parents .vscode-server
-
-if [[ ! -f ".ssh/yolo_github" ]]; then
-	ssh-keygen -t ed25519 -C "${GITHUB_USER_EMAIL}" -f .ssh/yolo_github -q -N ""
+if [[ ! -f "/tmp/sysbox.deb" ]]; then
+  wget "https://downloads.nestybox.com/sysbox/releases/v0.5.2/sysbox-ce_0.5.2-0.linux_${INSTANCE_ARCH}.deb" -O /tmp/sysbox.deb
 fi
 
-chmod 644 .ssh/yolo_github.pub
-chmod 600 .ssh/yolo_github
-
-if ! grep --silent --fixed-strings "IdentityFile ~/.ssh/yolo_github" .ssh/config; then
-	rm --force .ssh/config
-  echo "Host github.com" >> .ssh/config
-	echo "  User git" >> .ssh/config
-	echo "  Hostname github.com" >> .ssh/config
-	echo "  PreferredAuthentications publickey" >> .ssh/config
-	echo "  IdentityFile ~/.ssh/yolo_github" >> .ssh/config
-fi
-
-chmod 600 .ssh/config
-
-if ! grep --silent --fixed-strings "github.com" .ssh/known_hosts; then
-  ssh-keyscan github.com >> .ssh/known_hosts
-fi
-
-GIT_GPG_KEY_COUNT="$(gpg --list-signatures --with-colons | grep 'sig' | grep "${GITHUB_USER_EMAIL}" | wc -l)"
-
-if [[ $GIT_GPG_KEY_COUNT -eq 0 ]]; then
-	gpg --quiet --batch --gen-key << EOF2
-%no-protection
-Key-Type: RSA
-Key-Length: 4096
-Subkey-Type: RSA
-Subkey-Length: 4096
-Name-Real: ${USER_FULL_NAME}
-Name-Email: ${GITHUB_USER_EMAIL}
-Expire-Date: 0
-EOF2
-fi
-
-GIT_GPG_KEY_ID="$(gpg --list-signatures --with-colons | grep 'sig' | grep "${GITHUB_USER_EMAIL}" | head --lines 1 | cut --delimiter ':' --fields 5)"
-
-if [[ ! -f ".gnupg/yolo_github_gpg_public.pgp" ]]; then
-	GIT_GPG_PUBLIC_KEY="$(gpg --armor --export "${GIT_GPG_KEY_ID}")"
-
-	echo "${GIT_GPG_PUBLIC_KEY}" >> .gnupg/yolo_github_gpg_public.pgp
-fi
-
-chmod 644 .gnupg/yolo_github_gpg_public.pgp
-
-if [[ ! -f ".gnupg/yolo_github_gpg_private.pgp" ]]; then
-	GIT_GPG_PRIVATE_KEY="$(gpg --armor --export-secret-keys "${GIT_GPG_KEY_ID}")"
-
-	echo "${GIT_GPG_PRIVATE_KEY}" >> .gnupg/yolo_github_gpg_private.pgp
-fi
-
-chmod 600 .gnupg/yolo_github_gpg_private.pgp
-
-git config --global pull.rebase false
-
-git config --global user.name "${USER_FULL_NAME}"
-git config --global user.email "${GITHUB_USER_EMAIL}"
-
-git config --global user.signingkey "${GIT_GPG_KEY_ID}"
-git config --global commit.gpgsign true
-
-EOF
+sudo apt-get --assume-yes --quiet --quiet install /tmp/sysbox.deb
+rm -rf /tmp/sysbox.deb

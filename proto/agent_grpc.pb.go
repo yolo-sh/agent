@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 type AgentClient interface {
 	InitInstance(ctx context.Context, in *InitInstanceRequest, opts ...grpc.CallOption) (Agent_InitInstanceClient, error)
 	BuildAndStartEnv(ctx context.Context, in *BuildAndStartEnvRequest, opts ...grpc.CallOption) (Agent_BuildAndStartEnvClient, error)
+	InitEnv(ctx context.Context, in *InitEnvRequest, opts ...grpc.CallOption) (Agent_InitEnvClient, error)
 }
 
 type agentClient struct {
@@ -32,7 +33,7 @@ func NewAgentClient(cc grpc.ClientConnInterface) AgentClient {
 }
 
 func (c *agentClient) InitInstance(ctx context.Context, in *InitInstanceRequest, opts ...grpc.CallOption) (Agent_InitInstanceClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Agent_ServiceDesc.Streams[0], "/agent.Agent/InitInstance", opts...)
+	stream, err := c.cc.NewStream(ctx, &Agent_ServiceDesc.Streams[0], "/yolo.agent.Agent/InitInstance", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func (x *agentInitInstanceClient) Recv() (*InitInstanceReply, error) {
 }
 
 func (c *agentClient) BuildAndStartEnv(ctx context.Context, in *BuildAndStartEnvRequest, opts ...grpc.CallOption) (Agent_BuildAndStartEnvClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Agent_ServiceDesc.Streams[1], "/agent.Agent/BuildAndStartEnv", opts...)
+	stream, err := c.cc.NewStream(ctx, &Agent_ServiceDesc.Streams[1], "/yolo.agent.Agent/BuildAndStartEnv", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +96,45 @@ func (x *agentBuildAndStartEnvClient) Recv() (*BuildAndStartEnvReply, error) {
 	return m, nil
 }
 
+func (c *agentClient) InitEnv(ctx context.Context, in *InitEnvRequest, opts ...grpc.CallOption) (Agent_InitEnvClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Agent_ServiceDesc.Streams[2], "/yolo.agent.Agent/InitEnv", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &agentInitEnvClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Agent_InitEnvClient interface {
+	Recv() (*InitEnvReply, error)
+	grpc.ClientStream
+}
+
+type agentInitEnvClient struct {
+	grpc.ClientStream
+}
+
+func (x *agentInitEnvClient) Recv() (*InitEnvReply, error) {
+	m := new(InitEnvReply)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // AgentServer is the server API for Agent service.
 // All implementations must embed UnimplementedAgentServer
 // for forward compatibility
 type AgentServer interface {
 	InitInstance(*InitInstanceRequest, Agent_InitInstanceServer) error
 	BuildAndStartEnv(*BuildAndStartEnvRequest, Agent_BuildAndStartEnvServer) error
+	InitEnv(*InitEnvRequest, Agent_InitEnvServer) error
 	mustEmbedUnimplementedAgentServer()
 }
 
@@ -113,6 +147,9 @@ func (UnimplementedAgentServer) InitInstance(*InitInstanceRequest, Agent_InitIns
 }
 func (UnimplementedAgentServer) BuildAndStartEnv(*BuildAndStartEnvRequest, Agent_BuildAndStartEnvServer) error {
 	return status.Errorf(codes.Unimplemented, "method BuildAndStartEnv not implemented")
+}
+func (UnimplementedAgentServer) InitEnv(*InitEnvRequest, Agent_InitEnvServer) error {
+	return status.Errorf(codes.Unimplemented, "method InitEnv not implemented")
 }
 func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
 
@@ -169,11 +206,32 @@ func (x *agentBuildAndStartEnvServer) Send(m *BuildAndStartEnvReply) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Agent_InitEnv_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(InitEnvRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AgentServer).InitEnv(m, &agentInitEnvServer{stream})
+}
+
+type Agent_InitEnvServer interface {
+	Send(*InitEnvReply) error
+	grpc.ServerStream
+}
+
+type agentInitEnvServer struct {
+	grpc.ServerStream
+}
+
+func (x *agentInitEnvServer) Send(m *InitEnvReply) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // Agent_ServiceDesc is the grpc.ServiceDesc for Agent service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Agent_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "agent.Agent",
+	ServiceName: "yolo.agent.Agent",
 	HandlerType: (*AgentServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
@@ -185,6 +243,11 @@ var Agent_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "BuildAndStartEnv",
 			Handler:       _Agent_BuildAndStartEnv_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "InitEnv",
+			Handler:       _Agent_InitEnv_Handler,
 			ServerStreams: true,
 		},
 	},

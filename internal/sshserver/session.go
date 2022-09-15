@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gliderlabs/ssh"
-	"github.com/yolo-sh/agent/constants"
+	"github.com/yolo-sh/agent-container/constants"
 	"github.com/yolo-sh/agent/internal/docker"
 )
 
@@ -45,9 +45,8 @@ func (s Session) Start(sshSession ssh.Session) {
 
 	dockerClient, err := docker.NewDefaultClient()
 
-	// We don't handle error here because
-	// we want to be able to login to instance via SSH
-	// even if the docker container cannot be reached
+	// We don't handle error here because "/tmp/yolo-init-results"
+	// is checked before Docker is installed
 	if err != nil {
 		log.Println(err)
 	}
