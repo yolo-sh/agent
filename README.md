@@ -1,10 +1,10 @@
 # Agent / Host
 
-This repository contains the source code of the Yolo Agent. 
+This repository contains the source code of the agent. 
 
-The Yolo Agent is installed in the instance running your environment during its creation (most of the time via `cloud-init` but it may vary depending on the cloud provider used).
+The agent is installed in the instance running your environment during its creation (most of the time via `cloud-init` but it may vary depending on the cloud provider used).
 
-The main role of the Yolo Agent is to enable communication between your environments, the [CLI](https://github.com/yolo-sh/cli) and your code editor.
+The main role of this agent is to enable communication between your environments, the [CLI](https://github.com/yolo-sh/cli) and your code editor.
 
 It is composed of two components: 
 
@@ -35,7 +35,7 @@ The Yolo Agent only works on nix-based OS and requires:
 
 ## Usage
 
-The Yolo agent could be run using the `go run main.go` command. 
+The agent could be run using the `go run main.go` command. 
 
 The `gRPC server` will listen on an Unix socket at `/tmp/yolo-grpc.sock` whereas the `SSH server` will listen on `:2200` by default.
 
@@ -51,7 +51,7 @@ protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=p
 
 The `SSH server` lets you access your environment via `SSH` without having to install and configure it. 
 
-The `gRPC server`, on the other hand, is used to enable communication with the [Yolo CLI](https://github.com/yolo-sh/cli) (via `SSH`, using the OpenSSH's `Unix domain socket forwarding` feature).
+The `gRPC server`, on the other hand, is used to enable communication with the [CLI](https://github.com/yolo-sh/cli) (via `SSH`, using the OpenSSH's `Unix domain socket forwarding` feature).
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/1233275/187863602-775b14db-f88d-4bfd-9b0b-c543643d020e.png" alt="infra" />
@@ -65,7 +65,7 @@ The `SSH server` is the sole public-facing component. It will listen on port `22
 
 ### gRPC server
 
-The `gRPC server` listens on an Unix socket and, as a result, is not public-facing. It will be accessed by the [Yolo CLI](https://github.com/yolo-sh/cli) via `SSH`, using the OpenSSH's `Unix domain socket forwarding` feature.
+The `gRPC server` listens on an Unix socket and, as a result, is not public-facing. It will be accessed by the [CLI](https://github.com/yolo-sh/cli) via `SSH`, using the OpenSSH's `Unix domain socket forwarding` feature.
 
 It is principally used to build your environment as you can see in the service definition:
 
@@ -73,37 +73,52 @@ It is principally used to build your environment as you can see in the service d
 service Agent {
   rpc InitInstance (InitInstanceRequest) returns (stream InitInstanceReply) {}
   rpc BuildAndStartEnv (BuildAndStartEnvRequest) returns (stream BuildAndStartEnvReply) {}
+  rpc InitEnv (InitEnvRequest) returns (stream InitEnvReply) {}
 }
 
-message InitInstanceRequest {
-  string env_name_slug = 1;
-  string github_user_email = 2;
-  string user_full_name = 3;
-}
+message InitInstanceRequest {}
 
 message InitInstanceReply {
   string log_line_header = 1;
   string log_line = 2;
-  optional string github_ssh_public_key_content = 3;
-  optional string github_gpg_public_key_content = 4;
 }
 
 message BuildAndStartEnvRequest {
-  string env_repo_owner = 1;
-  string env_repo_name = 2;
+  string env_name_slug = 1;
+  string env_repo_owner = 2;
+  string env_repo_name = 3;
+  repeated string env_repo_languages_used = 4;
 }
 
 message BuildAndStartEnvReply {
   string log_line_header = 1;
   string log_line = 2;
 }
+
+message InitEnvRequest {
+  string env_repo_owner = 1;
+  string env_repo_name = 2;
+  repeated string env_repo_languages_used = 3;
+  string github_user_email = 4;
+  string user_full_name = 5;
+}
+
+message InitEnvReply {
+  string log_line_header = 1;
+  string log_line = 2;
+  optional string github_ssh_public_key_content = 3;
+  optional string github_gpg_public_key_content = 4;
+}
+
 ```
 
-The `InitInstance` method will run a [shell script](https://github.com/yolo-sh/agent/blob/main/internal/grpcserver/init_instance.sh) that will, among other things, install `Docker` and generate the `SSH` and `GPG` keys used in GitHub.
+The `InitInstance` method will run a [shell script](https://github.com/yolo-sh/agent/blob/main/internal/grpcserver/init_instance.sh) that will, among other things, install `Docker` and `Sysbox`.
 
-The `BuildAndStartEnv` method will clone your repositories and pull the `ghcr.io/yolo-sh/workspace-full` image.
+The `BuildAndStartEnv` method will pull the `ghcr.io/yolo-sh/workspace-full` image and build the environment container.
 
-**The two methods are idempotent**.
+The `InitEnv` method will call the `Init` method of the [container agent](https://github.com/yolo-sh/agent-container)'s gRPC service.
+
+**These methods are idempotent**.
 
 ## License
 
