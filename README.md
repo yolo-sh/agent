@@ -1,8 +1,8 @@
 # Agent / Host
 
-This repository contains the source code of the agent. 
+This repository contains the source code of the host agent. 
 
-The agent is installed in the instance running your environment during its creation (most of the time via `cloud-init` but it may vary depending on the cloud provider used).
+The host agent is installed in the instance running your environment during its creation (most of the time via `cloud-init` but it may vary depending on the cloud provider used).
 
 The main role of this agent is to enable communication between your environments, the [CLI](https://github.com/yolo-sh/cli) and your code editor.
 
@@ -23,7 +23,7 @@ It is composed of two components:
 
 ## Requirements
 
-The Yolo Agent only works on nix-based OS and requires:
+The host agent only works on nix-based OS and requires:
 
   - `go >= 1.17`
 
@@ -35,7 +35,7 @@ The Yolo Agent only works on nix-based OS and requires:
 
 ## Usage
 
-The agent could be run using the `go run main.go` command. 
+The host agent could be run using the `go run main.go` command. 
 
 The `gRPC server` will listen on an Unix socket at `/tmp/yolo-grpc.sock` whereas the `SSH server` will listen on `:2200` by default.
 
