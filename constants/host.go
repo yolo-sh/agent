@@ -1,6 +1,8 @@
 package constants
 
 const (
-	YoloUserName                      = "yolo"
-	YoloUserAuthorizedSSHKeysFilePath = "/home/" + YoloUserName + "/.ssh/authorized_keys"
+	YoloUserName        = "yolo"
+	YoloUserHomeDirPath = "/home/" + YoloUserName
+
+	YoloUserAuthorizedSSHKeysFilePath = YoloUserHomeDirPath + "/.ssh/authorized_keys"
 )

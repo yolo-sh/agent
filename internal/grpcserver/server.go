@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/yolo-sh/agent/proto"
 	"google.golang.org/grpc"
@@ -18,6 +19,12 @@ func ListenAndServe(serverAddrProtocol, serverAddr string) error {
 
 	if err != nil {
 		return fmt.Errorf("failed to listen: %v", err)
+	}
+
+	if serverAddrProtocol == "unix" { // Make sure that the socket could be reached by the container agent
+		if err := os.Chmod(serverAddr, 0660); err != nil {
+			return fmt.Errorf("failed to set socket permissions: %v", err)
+		}
 	}
 
 	grpcServer := grpc.NewServer()
