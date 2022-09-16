@@ -26,6 +26,7 @@ message BuildAndStartEnvRequest {
 message BuildAndStartEnvReply {
   string log_line_header = 1;
   string log_line = 2;
+  bool waiting_for_container_agent = 3;
 }
 
 message InitEnvRequest {

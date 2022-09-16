@@ -72,6 +72,14 @@ func EnsureDockerContainerRunning(
 		return err
 	}
 
+	err = stream.Send(&proto.BuildAndStartEnvReply{
+		WaitingForContainerAgent: true,
+	})
+
+	if err != nil {
+		return err
+	}
+
 	createdDockerContainer, err := dockerClient.ContainerCreate(
 		context.TODO(),
 
