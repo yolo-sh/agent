@@ -10,8 +10,8 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/gliderlabs/ssh"
 	"github.com/yolo-sh/agent-container/constants"
+	"github.com/yolo-sh/agent-container/entities"
 	"github.com/yolo-sh/agent/internal/docker"
-	"github.com/yolo-sh/agent/internal/env"
 )
 
 func (s SessionManager) ManageShellInEnv(sshSession ssh.Session) error {
@@ -27,7 +27,7 @@ func (s SessionManager) ManageShellInEnv(sshSession ssh.Session) error {
 		return err
 	}
 
-	workspaceConfig, err := env.LoadWorkspaceConfig(
+	workspaceConfig, err := entities.LoadWorkspaceConfig(
 		constants.WorkspaceConfigFilePath,
 	)
 
@@ -106,7 +106,7 @@ func (s SessionManager) ManageShellPTYInEnv(sshSession ssh.Session) error {
 		return err
 	}
 
-	workspaceConfig, err := env.LoadWorkspaceConfig(
+	workspaceConfig, err := entities.LoadWorkspaceConfig(
 		constants.WorkspaceConfigFilePath,
 	)
 
@@ -222,7 +222,7 @@ func (s SessionManager) ManageExecInEnv(sshSession ssh.Session) error {
 		return err
 	}
 
-	workspaceConfig, err := env.LoadWorkspaceConfig(
+	workspaceConfig, err := entities.LoadWorkspaceConfig(
 		constants.WorkspaceConfigFilePath,
 	)
 
