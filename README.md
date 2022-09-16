@@ -37,7 +37,7 @@ The host agent only works on nix-based OS and requires:
 
 The host agent could be run using the `go run main.go` command. 
 
-The `gRPC server` will listen on an Unix socket at `/tmp/yolo-grpc.sock` whereas the `SSH server` will listen on `:2200` by default.
+The `gRPC server` will listen on an Unix socket at `/yolo-config/agent-grpc.sock` whereas the `SSH server` will listen on `:2200` by default.
 
 ### Generating the gRPC server's code
 

@@ -1,12 +1,16 @@
 package constants
 
+import (
+	agentContainerConsts "github.com/yolo-sh/agent-container/constants"
+)
+
 const (
 	GRPCServerAddrProtocol = "unix"
-	GRPCServerAddr         = "/tmp/yolo-grpc.sock"
+	GRPCServerAddr         = agentContainerConsts.YoloConfigDirPath + "/agent-grpc.sock"
 
 	SSHServerListenPort      = "2200"
 	SSHServerListenAddr      = ":" + SSHServerListenPort
-	SSHServerHostKeyFilePath = "/home/" + YoloUserName + "/.ssh/yolo-ssh-server-host-key"
+	SSHServerHostKeyFilePath = YoloUserHomeDirPath + "/.ssh/yolo-ssh-server-host-key"
 
 	InitInstanceScriptRepoPath = "yolo-sh/agent/internal/grpcserver/init_instance.sh"
 )
